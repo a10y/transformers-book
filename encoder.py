@@ -87,8 +87,15 @@ class EncoderBlock(nn.Module):
         x = self.ff(x)
         return x
 
-# How to generate a stack of these encoder blocks into a single large encoder.
-
+class Encoder(nn.Module):
+    def __init__(self, n_layers: int, embed_dim: int, n_heads: int) -> None:
+        super().__init__()
+        self.layers = nn.ModuleList([EncoderBlock(embed_dim=embed_dim, n_heads=n_heads) for _ in range(n_layers)])
+    
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        for layer in self.layers:
+            x = layer(x)
+        return x
 
 if __name__ == "__main__":
     # Create a new field, and download it all
@@ -96,6 +103,6 @@ if __name__ == "__main__":
     # mha = MultiHeadAttention(embed_dim=768, n_heads=12)
     # res = mha(inps)
     # print(res.shape)
-    encoder = EncoderBlock(embed_dim=768, n_heads=12)
+    encoder = Encoder(embed_dim=768, n_heads=12, n_layers=12)
     res = encoder(inps)
     print(res.shape)
